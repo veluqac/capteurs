@@ -8,8 +8,8 @@ void setup() {
 
 void loop() {
     int sensorValue = analogRead(sensorPin); // Read the analog input
-    //float voltage = (sensorValue * referenceVoltage) / resolution; // Convert to voltage
-     float voltage = (sensorValue); // Convert to voltage
+    float voltage = (sensorValue * referenceVoltage) / resolution; // Convert to voltage
+     //float voltage = (sensorValue); // Convert to voltage
     
     Serial.print("Voltage: ");
     Serial.print(voltage);

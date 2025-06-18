@@ -1,10 +1,12 @@
 #include <WiFi.h>
-#include <credentials.h>
-
+#include <Wire.h>
 #include <esp_wpa2.h> // Needed for WPA2 Enterprise
 #include <Firebase_ESP_Client.h>
 #include <NTPClient.h>
 #include <WiFiUdp.h>
+#include <Adafruit_INA260.h>
+
+#include <credentials.h>
 
 
 // Firebase objects
@@ -17,9 +19,7 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", 0, 60000);
 
 const int ledPin = 2;
 
-const int sensorPin = 34;
-const float referenceVoltage = 5.0;
-const int resolution = 1023;
+Adafruit_INA260 ina260 = Adafruit_INA260();
 
 void connectToWPA2() {
   WiFi.disconnect(true);  // Disconnect from any previous connections
@@ -43,7 +43,6 @@ void connectToWPA2() {
 void setup() {
   Serial.begin(115200);
   pinMode(ledPin, OUTPUT);
-  pinMode(sensorPin, INPUT);
 
   connectToWPA2();
 
@@ -65,28 +64,43 @@ void setup() {
   // Start NTP
   timeClient.begin();
   
+  while (!Serial) { delay(10); }
 
+  Serial.println("Adafruit INA260 Test");
+
+  //Wire.begin(20, 22); // Optional, default pins; adjust if needed
+
+  if (!ina260.begin()) {
+    Serial.println("Couldn't find INA260 chip");
+    while (1);
+  }
+  Serial.println("Found INA260 chip");
 }
 
 void loop() {
   timeClient.update();
   String timestamp = String(timeClient.getEpochTime());
 
-  int sensorValue = analogRead(sensorPin); // Read the analog input
   
-  float voltage = (sensorValue * referenceVoltage) / resolution;
-  
-  Serial.println("Uploading value: ");
-  
-  Serial.println(voltage);
-  
+  Serial.println("Uploading value: " + String(ina260.readCurrent()));
 
-   if (Firebase.RTDB.setInt(&fbdo, "/Voltage/" + timestamp, voltage)) {
+  if (Firebase.RTDB.setInt(&fbdo, "/Current/" + timestamp, ina260.readCurrent())) {
     Serial.println("Upload success.");
   } else {
     Serial.println("Upload FAILED: " + fbdo.errorReason());
   }
 
-  
+   if (Firebase.RTDB.setInt(&fbdo, "/Voltage/" + timestamp, ina260.readBusVoltage())) {
+    Serial.println("Upload success.");
+  } else {
+    Serial.println("Upload FAILED: " + fbdo.errorReason());
+  }
+
+   if (Firebase.RTDB.setInt(&fbdo, "/Power/" + timestamp, ina260.readPower())) {
+    Serial.println("Upload success.");
+  } else {
+    Serial.println("Upload FAILED: " + fbdo.errorReason());
+  }
+
   delay(5000);
 }

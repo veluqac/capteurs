@@ -6,9 +6,10 @@ Il peut y avoir différentes versions du programme d'un capteur afin de pouvoir 
 # Les objectifs présents du projet sont:
   - [x] Produire suffisament d'énergie à l'aide d'un générateur pour recharger un téléphone.
   - [x] Mesurer la tension produite par le générateur
-  - [ ] Mesurer le courant produit par le générateur
-  - [ ] Mesurer la puissance produite par le générateur
-  - [ ] Récupérer les données mesurées et les envoyer dans une base de données firebase.
+  - [x] Mesurer le courant produit par le générateur
+  - [x] Mesurer la puissance produite par le générateur
+  - [x] Récupérer les données mesurées et les envoyer dans une base de données firebase.
+  - [x] Économiser l'énergie en programmant un mode deep-sleep  
         
 Un micro-contrôleur *Feather ESP32 V2* sera d'ailleurs utilisé pour remplir ces objectifs.
 
